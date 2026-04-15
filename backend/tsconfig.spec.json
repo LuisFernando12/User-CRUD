@@ -1,0 +1,25 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2021",
+    "isolatedModules": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "types": [
+      "node",
+      "jest"
+    ],
+    "noEmit": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "**/*.spec.ts"
+  ],
+  "exclude": [
+    "dist",
+    "node_modules"
+  ]
+}
