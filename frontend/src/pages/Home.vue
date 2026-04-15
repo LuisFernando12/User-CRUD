@@ -26,7 +26,7 @@ const onCreate = async (user: CreateUserDTO) => {
 <template>
   <div class="flex flex-col items-center h-screen w-screen gap-6">
     <p
-      class="font-bold text-zinc-600 text-2xl w-full text-center bg-blue-300 h-14 rounded-b-2xl py-3"
+      class="font-bold text-zinc-50 text-2xl w-full text-center bg-blue-500 h-14 rounded-b-2xl py-3"
     >
       User CRUD application.
     </p>
@@ -43,6 +43,7 @@ const onCreate = async (user: CreateUserDTO) => {
       <Table :users="users || []"></Table>
     </div>
     <ModalCreateUser
+      v-if="showCreateUserModal"
       :show="showCreateUserModal"
       @onSave="onCreate"
       :onCancel="

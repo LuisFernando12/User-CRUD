@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import TextButton from "./TextButton.vue";
-
+const emit = defineEmits<{
+  (e: "onCancel"): void;
+  (e: "onConfirm"): void;
+}>();
 defineProps<{
   description: string;
   show: boolean;
-  onCancel: () => void;
-  onConfirm: () => void;
   class?: string;
 }>();
 </script>
@@ -30,12 +31,12 @@ defineProps<{
           <text-button
             text="Cancel"
             class="text-gray-500 hover:text-gray-800"
-            @click="onCancel"
+            @click="() => $emit('onCancel')"
           />
           <text-button
             text="Confirm"
             class="text-blue-500 hover:text-blue-800"
-            @click="onConfirm"
+            @click="$emit('onConfirm')"
           />
         </div>
       </div>

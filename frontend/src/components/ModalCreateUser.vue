@@ -1,18 +1,18 @@
 <script setup lang="ts">
-import { onUnmounted, ref } from "vue";
-import type { CreateUserDTO, IUser } from "../service/user.service";
+import { computed, onUnmounted, ref } from "vue";
+import type { CreateUserDTO, UserType } from "../service/user.service";
 import Button from "./ui/Button.vue";
 import TextField from "./ui/TextField.vue";
 
 const emit = defineEmits<{
-  (e: "onSave", user: CreateUserDTO & { id?: number }): void;
+  (e: "onSave", user: CreateUserDTO & { _id?: string }): void;
 }>();
 const { show, onCancel, user } = defineProps<{
   show: boolean;
   onCancel: () => void;
-  user?: IUser;
+  user?: UserType;
 }>();
-const userRef = ref<CreateUserDTO & { id?: number }>(
+const userRef = ref<CreateUserDTO & { _id?: string }>(
   user || {
     name: "",
     email: "",
@@ -21,7 +21,7 @@ const userRef = ref<CreateUserDTO & { id?: number }>(
     phone: "",
   },
 );
-const onSaveUser = (userSave: CreateUserDTO & { id?: number }) => {
+const onSaveUser = (userSave: CreateUserDTO & { _id?: string }) => {
   emit("onSave", userSave);
 };
 onUnmounted(() => {
@@ -33,50 +33,75 @@ onUnmounted(() => {
     phone: "",
   };
 });
+const disabledButton = computed(() => {
+  return Object.values(userRef.value).some(
+    (value) => String(value).trim() === "",
+  );
+});
 </script>
 <template>
   <div
     class="w-full h-full bg-black/70 flex justify-center py-3 gap-3 absolute top-0 left-0"
     v-if="show"
   >
-    <div class="w-2/5 h-3/5 flex flex-col gap-4 bg-white rounded-2xl p-6">
-      <p class="font-bold text-xl self-center">Create User</p>
-      <TextField
-        type="text"
-        placeholder="Name"
-        :value="userRef.name"
-        @update:value="(value) => (userRef.name = value)"
-      />
-      <TextField
-        type="text"
-        placeholder="CPF"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        :value="userRef.cpf"
-      />
-      <TextField
-        type="date"
-        placeholder="Birth Date"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        :value="userRef.birthDate"
-      />
-      <TextField
-        type="email"
-        placeholder="Email"
-        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        :value="userRef.email"
-      />
-      <TextField type="text" placeholder="Phone" :value="userRef.phone" />
-      <div class="self-end flex gap-2">
-        <Button
-          text="Cancel"
-          class="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 self-end mt-4 ml-2"
-          @click="onCancel()"
+    <div class="w-2/5 h-3/5 flex flex-col gap-4 bg-white rounded-2xl">
+      <div
+        class="w-full h-10 bg-blue-500 rounded-t-2xl text-center text-white py-1"
+      >
+        <p class="font-bold text-xl self-center bg-blue">Create User</p>
+      </div>
+      <div class="w-full flex flex-col p-6 gap-5">
+        <TextField
+          type="text"
+          name="name"
+          placeholder="Name"
+          :value="userRef.name"
+          @update:value="(value) => (userRef.name = value)"
         />
-        <Button
-          :text="userRef.id ? 'Update' : 'Create'"
-          class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 self-end mt-4"
-          @click="onSaveUser(userRef)"
+        <TextField
+          type="text"
+          name="cpf"
+          placeholder="CPF"
+          class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          :value="userRef.cpf"
+          @update:value="(value) => (userRef.cpf = value)"
+          mask="xxx.xxx.xxx-xx"
         />
+        <TextField
+          type="date"
+          name="birthDate"
+          placeholder="Birth Date"
+          :value="userRef.birthDate"
+          @update:value="(value) => (userRef.birthDate = value)"
+        />
+        <TextField
+          type="email"
+          name="email"
+          placeholder="Email"
+          :value="userRef.email"
+          @update:value="(value) => (userRef.email = value)"
+        />
+        <TextField
+          type="text"
+          name="phone"
+          placeholder="Phone"
+          :value="userRef.phone"
+          @update:value="(value) => (userRef.phone = value)"
+          mask="(xx) xxxxx-xxxx"
+        />
+        <div class="self-end flex gap-2 mt-10">
+          <Button
+            text="Cancel"
+            class="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 self-end mt-4 ml-2"
+            @click="onCancel()"
+          />
+          <Button
+            :text="userRef._id ? 'Update' : 'Create'"
+            class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 self-end mt-4 disabled:bg-blue-300 disabled:cursor-not-allowed"
+            @click="onSaveUser(userRef)"
+            :disabled="disabledButton"
+          />
+        </div>
       </div>
     </div>
   </div>

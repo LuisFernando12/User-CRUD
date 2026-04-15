@@ -1,21 +1,21 @@
 import { CreateUserDto } from '@/dto/create-user.dto';
 import { UpdateUserDto } from '@/dto/update-user.dto';
+import { User } from '@/model/user.model';
 import { UserRepository } from '@/repository/user.repository';
 import {
   BadRequestException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { User } from '../entities/user.entity';
 export interface IUserService {
   create(createUserDto: CreateUserDto): Promise<User>;
   findAll(): Promise<User[] | []>;
-  findOne(id: number): Promise<User | undefined>;
+  findOne(id: string): Promise<User | undefined>;
   update(
-    id: number,
+    id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<{ affected: number }>;
-  remove(id: number): Promise<{ affected: number }>;
+  remove(id: string): Promise<{ affected: number }>;
 }
 @Injectable()
 export class UserService implements IUserService {
@@ -26,7 +26,7 @@ export class UserService implements IUserService {
   async findAll(): Promise<User[] | []> {
     return await this.userRepository.findAll();
   }
-  async findOne(id: number): Promise<User | undefined> {
+  async findOne(id: string): Promise<User | undefined> {
     const user = await this.userRepository.findOne(id);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -34,7 +34,7 @@ export class UserService implements IUserService {
     return user;
   }
   async update(
-    id: number,
+    id: string,
     updateUserDto: UpdateUserDto,
   ): Promise<{ affected: number }> {
     if (!id) {
@@ -45,7 +45,7 @@ export class UserService implements IUserService {
     }
     return await this.userRepository.update(id, updateUserDto);
   }
-  async remove(id: number): Promise<{ affected: number }> {
+  async remove(id: string): Promise<{ affected: number }> {
     if (!id) {
       throw new BadRequestException('User ID is required');
     }

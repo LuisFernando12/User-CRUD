@@ -32,7 +32,7 @@ export const useUserStore = defineStore("user", () => {
       return false;
     }
   };
-  const onUpdateUser = async (id: number, user: UpdateUserDTO) => {
+  const onUpdateUser = async (id: string, user: UpdateUserDTO) => {
     try {
       const userUpdated = await userService.updateUser(id, user);
       if (!userUpdated) {
@@ -44,7 +44,7 @@ export const useUserStore = defineStore("user", () => {
       return false;
     }
   };
-  const onDeleteUser = async (id: number) => {
+  const onDeleteUser = async (id: string) => {
     try {
       await userService.deleteUser(id);
       invalidUserQueries();

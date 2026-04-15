@@ -1,24 +1,24 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { toast } from "vue3-toastify";
-import type { IUser } from "../service/user.service";
+import type { UserType } from "../service/user.service";
 import { useUserStore } from "../store/user.store";
 import ModalCreateUser from "./ModalCreateUser.vue";
 import ConfirmDialog from "./ui/ConfirmDialog.vue";
 import TextButton from "./ui/TextButton.vue";
 const userStore = useUserStore();
 defineProps<{
-  users: IUser[];
+  users: UserType[];
 }>();
 const showModalCreateUser = ref<boolean>(false);
 const showConfirmDialog = ref<boolean>(false);
-const userRef = ref<IUser>();
-const onEdit = (user: IUser) => {
+const userRef = ref<UserType>();
+const onEdit = (user: UserType) => {
   showModalCreateUser.value = true;
   userRef.value = { ...user };
 };
-const onUpdate = async (user: Partial<IUser>) => {
-  const { id, ...rest } = user;
+const onUpdate = async (user: Partial<UserType>) => {
+  const { _id: id, ...rest } = user;
   if (id) {
     const userUpdated = await userStore.onUpdateUser(id, rest);
     if (!userUpdated) {
@@ -37,8 +37,30 @@ const onUpdate = async (user: Partial<IUser>) => {
     position: toast.POSITION.TOP_RIGHT,
   });
 };
-const onDelete = (id: number) => {
+const onDelete = (id: string) => {
+  userRef.value = { _id: id } as UserType;
   showConfirmDialog.value = true;
+};
+const onConfirmDelete = async () => {
+  if (!userRef.value?._id) {
+    toast.error("User not found !", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+    console.error("User not found, missing id !");
+    showConfirmDialog.value = false;
+    return;
+  }
+  const userDeleted = await userStore.onDeleteUser(userRef.value?._id);
+  if (!userDeleted) {
+    toast.error("Error deleting user !", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+  } else {
+    toast.success("User deleted successfully !", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+  }
+  showConfirmDialog.value = false;
 };
 const convertDate = (date: string) => date.split("-").reverse().join("/");
 </script>
@@ -47,12 +69,13 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
     <table class="w-full rounded-2xl shadow-xl">
       <thead class="w-full bg-gray-200 rounded-t-2xl">
         <tr class="w-full h-8 rounded-t-2xl">
-          <th class="rounded-tl-2xl">ID</th>
-          <th>Name</th>
-          <th>CPF</th>
-          <th>Birth Date</th>
-          <th>Email</th>
-          <th>Phone</th>
+          <th class="rounded-tl-2xl border-r border-gray-300 text-center">
+            Name
+          </th>
+          <th class="border-r border-gray-300">CPF</th>
+          <th class="border-r border-gray-300">Birth Date</th>
+          <th class="border-r border-gray-300">Email</th>
+          <th class="border-r border-gray-300">Phone</th>
           <th class="rounded-tr-2xl">Actions</th>
         </tr>
       </thead>
@@ -63,17 +86,13 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
         <tr
           v-else
           v-for="(user, index) in users"
-          :key="user.id"
+          :key="user._id"
           :class="{
-            'bg-light-table-secondary': user.id % 2 === 0,
-            'bg-light-table-primary': user.id % 2 !== 0,
+            'bg-light-table-secondary': index % 2 === 0,
+            'bg-light-table-primary': index % 2 !== 0,
             'w-full h-8 border-b border-t border-gray-200': true,
-            'rounded-b-2xl': index === users.length - 1,
           }"
         >
-          <td class="border-r border-gray-200 text-center">
-            {{ user.id }}
-          </td>
           <td class="border-r border-gray-200 text-center">{{ user.name }}</td>
           <td class="border-r border-gray-200 text-center">{{ user.cpf }}</td>
           <td class="border-r border-gray-200 text-center">
@@ -87,10 +106,11 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
               class="text-blue-500 hover:text-blue-600"
               @click="onEdit(user)"
             />
+            <span class="text-gray-300 font-light">|</span>
             <text-button
               text="Delete"
               class="text-red-500 hover:text-red-600"
-              @click="onDelete(user.id)"
+              @click="onDelete(user._id)"
             />
           </td>
         </tr>
@@ -110,8 +130,8 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
     <ConfirmDialog
       :show="showConfirmDialog"
       description="Do you really want to delete the user?"
-      :onCancel="() => (showConfirmDialog = false)"
-      :onConfirm="() => {}"
+      @onCancel="() => (showConfirmDialog = false)"
+      @onConfirm="onConfirmDelete"
     />
   </div>
 </template>
