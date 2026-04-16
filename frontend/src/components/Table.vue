@@ -123,6 +123,7 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
       </tbody>
     </table>
     <ModalCreateUser
+      mode="update"
       v-if="showModalCreateUser"
       :show="showModalCreateUser"
       :user="userRef"

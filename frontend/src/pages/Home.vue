@@ -43,6 +43,7 @@ const onCreate = async (user: CreateUserDTO) => {
       <Table :users="users || []"></Table>
     </div>
     <ModalCreateUser
+      mode="create"
       v-if="showCreateUserModal"
       :show="showCreateUserModal"
       @onSave="onCreate"

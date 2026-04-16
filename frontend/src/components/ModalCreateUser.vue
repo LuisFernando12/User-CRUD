@@ -14,6 +14,7 @@ const { show, onCancel, user } = defineProps<{
   show: boolean;
   onCancel: () => void;
   user?: UserType;
+  mode: "create" | "update";
 }>();
 const userRef = ref<CreateUserDTO & { _id?: string }>(
   user || {
@@ -75,7 +76,9 @@ const disabledButton = computed(() => {
       <div
         class="w-full h-10 bg-blue-500 rounded-t-2xl text-center text-white py-1"
       >
-        <p class="font-bold text-xl self-center bg-blue">Create User</p>
+        <p class="font-bold text-xl self-center bg-blue">
+          {{ mode === "create" ? "Create User" : "Update User" }}
+        </p>
       </div>
       <div class="w-full flex flex-col p-6 gap-5">
         <TextField
@@ -123,7 +126,7 @@ const disabledButton = computed(() => {
             @click="onCancel()"
           />
           <Button
-            :text="userRef._id ? 'Update' : 'Create'"
+            :text="mode === 'update' ? 'Update' : 'Create'"
             class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 self-end mt-4 disabled:bg-blue-300 disabled:cursor-not-allowed"
             @click="onSaveUser(userRef)"
             :disabled="disabledButton"
