@@ -2,7 +2,7 @@ import { CreateUserDTO } from '@/dto/create-user.dto';
 import { UpdateUserDTO } from '@/dto/update-user.dto';
 import { User } from '@/model/user.model';
 import {
-  ConflictException,
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
@@ -26,9 +26,6 @@ export class UserRepository implements IUserRepository {
       const createdUser = new this.userModel(user);
       return createdUser.save();
     } catch (error) {
-      if (error instanceof ConflictException) {
-        throw error;
-      }
       throw new InternalServerErrorException(error, 'Error creating user');
     }
   }
@@ -36,7 +33,17 @@ export class UserRepository implements IUserRepository {
     return await this.userModel.find();
   }
   async findOne(id: string): Promise<User | undefined> {
-    return await this.userModel.findOne({ _id: id });
+    try {
+      return await this.userModel.findOne({ _id: id });
+    } catch (error) {
+      if (error.name === 'CastError') {
+        throw new BadRequestException(
+          'Error to finding user',
+          `The id ${id} is invalid`,
+        );
+      }
+      throw new InternalServerErrorException(error, 'Error to finding user');
+    }
   }
   async update(id: string, user: UpdateUserDTO): Promise<{ affected: number }> {
     try {
