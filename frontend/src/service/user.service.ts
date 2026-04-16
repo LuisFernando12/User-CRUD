@@ -52,7 +52,7 @@ const updateUser = async (
 ): Promise<{ affected: number }> => {
   try {
     user = UpdateUserSchema.strip().parse(user);
-    const { data } = await api.patch(`/user/${id}`, user);
+    const { data } = await api.put(`/user/${id}`, user);
     return data;
   } catch (error) {
     console.error("Error updating user:", error);

@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref } from "vue";
+import { toast } from "vue3-toastify";
 import type { CreateUserDTO, UserType } from "../service/user.service";
 import Button from "./ui/Button.vue";
 import TextField from "./ui/TextField.vue";
+import { ValidCPF } from "./ui/utils/valid-cpf";
+import { ValidEmail } from "./ui/utils/valid-email";
 
 const emit = defineEmits<{
   (e: "onSave", user: CreateUserDTO & { _id?: string }): void;
@@ -22,6 +25,30 @@ const userRef = ref<CreateUserDTO & { _id?: string }>(
   },
 );
 const onSaveUser = (userSave: CreateUserDTO & { _id?: string }) => {
+  if (!ValidEmail(userSave.email)) {
+    toast.warn("Invalid email!", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+    const inputEmail = document.querySelector(
+      "input[name='email']",
+    ) as HTMLInputElement;
+    inputEmail.classList.remove("focus:ring-blue-500");
+    inputEmail.classList.add("focus:ring-red-500");
+    inputEmail.focus();
+    return;
+  }
+  if (!ValidCPF(userSave.cpf)) {
+    toast.warn("Invalid CPF, Please check your CPF and try again!", {
+      position: toast.POSITION.TOP_RIGHT,
+    });
+    const inputCPF = document.querySelector(
+      "input[name='cpf']",
+    ) as HTMLInputElement;
+    inputCPF.classList.remove("focus:ring-blue-500");
+    inputCPF.classList.add("focus:ring-red-500");
+    inputCPF.focus();
+    return;
+  }
   emit("onSave", userSave);
 };
 onUnmounted(() => {
@@ -87,7 +114,7 @@ const disabledButton = computed(() => {
           placeholder="Phone"
           :value="userRef.phone"
           @update:value="(value) => (userRef.phone = value)"
-          mask="(xx)xxxxx-xxxx"
+          mask="(xx) xxxxx-xxxx"
         />
         <div class="self-end flex gap-2 mt-10">
           <Button

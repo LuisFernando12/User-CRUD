@@ -1,11 +1,11 @@
-import { IUserRepository, UserRepository } from '@/repository/user.repository';
-import { UserService } from '@/service/user.service';
+import { IUserService, UserService } from '@/service/user.service';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UserController } from '../../src/controller/user.controller';
 import { CreateUserDTO } from '../../src/dto/create-user.dto';
 import { UpdateUserDTO } from '../../src/dto/update-user.dto';
 
 describe('UserService', () => {
-  const mockUserRepository: IUserRepository = {
+  const mockUserService: IUserService = {
     create: jest.fn().mockResolvedValue({
       id: '1',
       name: 'John Doe',
@@ -46,23 +46,22 @@ describe('UserService', () => {
     remove: jest.fn().mockResolvedValue({
       affected: 1,
     }),
-    userExists: jest.fn().mockResolvedValue(false),
   };
-  let userService: UserService;
+  let userController: UserController;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UserService,
+        UserController,
         {
-          provide: UserRepository,
-          useValue: mockUserRepository,
+          provide: UserService,
+          useValue: mockUserService,
         },
       ],
     }).compile();
-    userService = module.get<UserService>(UserService);
+    userController = module.get<UserController>(UserController);
   });
   it('should be defined', () => {
-    expect(userService).toBeDefined();
+    expect(userController).toBeDefined();
   });
   describe('create', () => {
     const mockUser: CreateUserDTO = {
@@ -73,7 +72,7 @@ describe('UserService', () => {
       phone: '(11)111111111',
     };
     it('should create a user', async () => {
-      const result = await userService.create(mockUser);
+      const result = await userController.create(mockUser);
       expect(result).toEqual({
         id: '1',
         name: mockUser.name,
@@ -83,15 +82,10 @@ describe('UserService', () => {
         phone: mockUser.phone,
       });
     });
-    it('should throw an error if user already exists', async () => {
-      mockUserRepository.userExists = jest.fn().mockResolvedValueOnce(true);
-      const promise = userService.create(mockUser);
-      await expect(promise).rejects.toThrow('Conflict data');
-    });
   });
   describe('findAll', () => {
     it('should return an array of users', async () => {
-      const result = await userService.findAll();
+      const result = await userController.findAll();
       expect(result).toEqual([
         {
           id: '1',
@@ -111,15 +105,10 @@ describe('UserService', () => {
         },
       ]);
     });
-    it('should return an array without users', async () => {
-      jest.spyOn(mockUserRepository, 'findAll').mockResolvedValueOnce([]);
-      const result = await userService.findAll();
-      expect(result).toEqual([]);
-    });
   });
   describe('findOne', () => {
     it('should return a user', async () => {
-      const result = await userService.findOne('1');
+      const result = await userController.findOne('1');
       expect(result).toEqual({
         id: '1',
         name: 'John Doe',
@@ -129,50 +118,24 @@ describe('UserService', () => {
         phone: '(11)111111111',
       });
     });
-    it('should throw an error if user is not found', async () => {
-      mockUserRepository.findOne = jest.fn().mockResolvedValueOnce(null);
-      const promise = userService.findOne('1');
-      await expect(promise).rejects.toThrow('User not found');
-    });
   });
   describe('update', () => {
     const mockUser: UpdateUserDTO = {
       name: 'John Doe2',
     };
     it('should update a user', async () => {
-      const result = await userService.update('1', mockUser);
+      const result = await userController.update('1', mockUser);
       expect(result).toEqual({
         affected: 1,
       });
-    });
-    it('should throw an error cause missing id', async () => {
-      const promise = userService.update(null, mockUser);
-      await expect(promise).rejects.toThrow('User ID is required');
-    });
-    it('should throw an error cause missing id', async () => {
-      const promise = userService.update('1', {});
-      await expect(promise).rejects.toThrow(
-        'At least one field is required to update',
-      );
     });
   });
   describe('remove', () => {
     it('should remove a user', async () => {
-      const result = await userService.remove('1');
+      const result = await userController.remove('1');
       expect(result).toEqual({
         affected: 1,
       });
-    });
-    it('should throw an error cause missing id', async () => {
-      const promise = userService.remove(null);
-      await expect(promise).rejects.toThrow('User ID is required');
-    });
-    it('should throw an error if user is not found', async () => {
-      mockUserRepository.remove = jest
-        .fn()
-        .mockResolvedValueOnce({ affected: 0 });
-      const promise = userService.remove('1');
-      await expect(promise).rejects.toThrow('User not found');
     });
   });
 });

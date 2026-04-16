@@ -104,7 +104,7 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
           </td>
           <td class="border-r border-gray-200 text-center">{{ user.email }}</td>
           <td class="border-r border-gray-200 text-center">
-            {{ HandleMask(user.phone, "(xx)xxxxx-xxxx") }}
+            {{ HandleMask(user.phone, "(xx) xxxxx-xxxx") }}
           </td>
           <td class="text-center">
             <text-button
@@ -135,6 +135,7 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
     />
     <ConfirmDialog
       :show="showConfirmDialog"
+      title="Delete User"
       description="Do you really want to delete the user?"
       @onCancel="() => (showConfirmDialog = false)"
       @onConfirm="onConfirmDelete"

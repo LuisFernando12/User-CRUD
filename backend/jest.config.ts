@@ -9,15 +9,15 @@ const config: Config = {
   },
   modulePathIgnorePatterns: ['<rootDir>/dist', '<rootDir>/node_modules'],
   coveragePathIgnorePatterns: [
-    '<rootDir>/src/entity',
-    '<rootDir>/src/config',
+    '<rootDir>/src/model',
+    '<rootDir>/src/dto',
     '<rootDir>/src/module',
     '<rootDir>/src/repository',
     '<rootDir>/src/main.ts',
     '<rootDir>/jest.config.ts',
   ],
   collectCoverageFrom: ['**/*.ts'],
-  coverageDirectory: '../coverage',
+  coverageDirectory: '<rootDir>/coverage',
   testEnvironment: 'node',
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',

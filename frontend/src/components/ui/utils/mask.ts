@@ -1,18 +1,22 @@
 export const HandleMask = (value: string, mask: string) => {
   if (!mask) return value;
-  const regexHasOnlySpecialChar = /^[-./()]+$/;
-  if (regexHasOnlySpecialChar.test(value)) return "";
-  mask = mask.toUpperCase();
   value = value.replace(/\D/g, "");
-  const regexToValidCharMask = /[-./()]/;
+  const regexToValidCharMask = /[-./() ]/;
   let maskedValue = "";
-  let i = 0;
+  let valueIndex = 0;
   for (let char of mask) {
-    if (regexToValidCharMask.test(char)) {
-      maskedValue += char;
+    const isSpecialChar = regexToValidCharMask.test(char);
+    if (isSpecialChar) {
+      if (value.length > valueIndex) {
+        maskedValue += char;
+      }
     } else {
-      maskedValue += value[i] || "";
-      i++;
+      if (value.length > valueIndex) {
+        maskedValue += value[valueIndex] || "";
+        valueIndex++;
+      } else {
+        break;
+      }
     }
   }
   return maskedValue;

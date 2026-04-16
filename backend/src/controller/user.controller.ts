@@ -8,8 +8,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
 } from '@nestjs/common';
 
 @Controller('user')
@@ -27,7 +27,7 @@ export class UserController {
   async findOne(@Param('id') id: string): Promise<User | undefined> {
     return await this.userService.findOne(id);
   }
-  @Patch(':id')
+  @Put(':id')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDTO,

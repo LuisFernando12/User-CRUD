@@ -7,6 +7,7 @@ const emit = defineEmits<{
 defineProps<{
   description: string;
   show: boolean;
+  title: string;
   class?: string;
 }>();
 </script>
@@ -21,7 +22,7 @@ defineProps<{
       <div
         class="h-8 -mt-8 rounded-t-2xl w-full bg-blue-500 text-white flex justify-center items-center"
       >
-        User Delete
+        {{ title }}
       </div>
       <div class="px-6 flex flex-col gap-8">
         <p class="text-base w-full text-justfy flex items-center font-bold">

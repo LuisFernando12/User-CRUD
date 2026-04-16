@@ -28,7 +28,7 @@ export class UserService implements IUserService {
         createUserDto.email,
       )
     ) {
-      throw new ConflictException('User already exists');
+      throw new ConflictException('Conflict data');
     }
     return await this.userRepository.create(createUserDto);
   }

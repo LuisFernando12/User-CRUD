@@ -19,6 +19,14 @@ const displayValue = computed(() => {
 });
 const inputEvent = (event: Event) => {
   const target = event.target as HTMLInputElement;
+  if (
+    target.classList.contains("focus:ring-red-500") &&
+    !target.classList.contains("focus:ring-blue-500")
+  ) {
+    target.classList.remove("focus:ring-red-500");
+    target.classList.add("focus:ring-blue-500");
+  }
+
   let value = target.value;
   if (mask) {
     value = value.replace(/\D/g, "");
