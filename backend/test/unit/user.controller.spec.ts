@@ -4,7 +4,7 @@ import { UserController } from '../../src/controller/user.controller';
 import { CreateUserDTO } from '../../src/dto/create-user.dto';
 import { UpdateUserDTO } from '../../src/dto/update-user.dto';
 
-describe('UserService', () => {
+describe('UserController', () => {
   const mockUserService: IUserService = {
     create: jest.fn().mockResolvedValue({
       id: '1',
