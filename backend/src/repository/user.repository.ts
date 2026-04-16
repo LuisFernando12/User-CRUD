@@ -41,11 +41,7 @@ export class UserRepository implements IUserRepository {
   async update(id: string, user: UpdateUserDTO): Promise<{ affected: number }> {
     try {
       const userUpdated = await this.userModel.updateOne({ _id: id }, user);
-      if (userUpdated.acknowledged) {
-        return { affected: 1 };
-      } else {
-        return { affected: 0 };
-      }
+      return { affected: userUpdated.modifiedCount > 0 ? 1 : 0 };
     } catch (error) {
       throw new InternalServerErrorException(error, 'Error updating user');
     }
@@ -54,11 +50,7 @@ export class UserRepository implements IUserRepository {
     const userDeleted = await this.userModel.deleteOne({
       _id: id,
     });
-    if (userDeleted.acknowledged) {
-      return { affected: 1 };
-    } else {
-      return { affected: 0 };
-    }
+    return { affected: userDeleted.deletedCount > 0 ? 1 : 0 };
   }
   async userExists(cpf: string, email: string): Promise<boolean> {
     return !!(await this.userModel.exists({
