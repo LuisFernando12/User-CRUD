@@ -6,6 +6,8 @@ import { useUserStore } from "../store/user.store";
 import ModalCreateUser from "./ModalCreateUser.vue";
 import ConfirmDialog from "./ui/ConfirmDialog.vue";
 import TextButton from "./ui/TextButton.vue";
+import { HandleMask } from "./ui/utils/mask";
+
 const userStore = useUserStore();
 defineProps<{
   users: UserType[];
@@ -94,12 +96,16 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
           }"
         >
           <td class="border-r border-gray-200 text-center">{{ user.name }}</td>
-          <td class="border-r border-gray-200 text-center">{{ user.cpf }}</td>
+          <td class="border-r border-gray-200 text-center">
+            {{ HandleMask(user.cpf, "xxx.xxx.xxx-xx") }}
+          </td>
           <td class="border-r border-gray-200 text-center">
             {{ convertDate(user.birthDate) }}
           </td>
           <td class="border-r border-gray-200 text-center">{{ user.email }}</td>
-          <td class="border-r border-gray-200 text-center">{{ user.phone }}</td>
+          <td class="border-r border-gray-200 text-center">
+            {{ HandleMask(user.phone, "(xx)xxxxx-xxxx") }}
+          </td>
           <td class="text-center">
             <text-button
               text="Edit"

@@ -1,5 +1,5 @@
-import { CreateUserDto } from '@/dto/create-user.dto';
-import { UpdateUserDto } from '@/dto/update-user.dto';
+import { CreateUserDTO } from '@/dto/create-user.dto';
+import { UpdateUserDTO } from '@/dto/update-user.dto';
 import { User } from '@/model/user.model';
 import { UserService } from '@/service/user.service';
 import {
@@ -16,7 +16,7 @@ import {
 export class UserController {
   constructor(private readonly userService: UserService) {}
   @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<User> {
+  async create(@Body() createUserDto: CreateUserDTO): Promise<User> {
     return await this.userService.create(createUserDto);
   }
   @Get()
@@ -30,7 +30,7 @@ export class UserController {
   @Patch(':id')
   async update(
     @Param('id') id: string,
-    @Body() updateUserDto: UpdateUserDto,
+    @Body() updateUserDto: UpdateUserDTO,
   ): Promise<{ affected: number }> {
     return await this.userService.update(id, updateUserDto);
   }

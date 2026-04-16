@@ -1,26 +1,35 @@
-import { CreateUserDto } from '@/dto/create-user.dto';
-import { UpdateUserDto } from '@/dto/update-user.dto';
+import { CreateUserDTO } from '@/dto/create-user.dto';
+import { UpdateUserDTO } from '@/dto/update-user.dto';
 import { User } from '@/model/user.model';
 import { UserRepository } from '@/repository/user.repository';
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 export interface IUserService {
-  create(createUserDto: CreateUserDto): Promise<User>;
+  create(createUserDto: CreateUserDTO): Promise<User>;
   findAll(): Promise<User[] | []>;
   findOne(id: string): Promise<User | undefined>;
   update(
     id: string,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateUserDTO,
   ): Promise<{ affected: number }>;
   remove(id: string): Promise<{ affected: number }>;
 }
 @Injectable()
 export class UserService implements IUserService {
   constructor(private readonly userRepository: UserRepository) {}
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async create(createUserDto: CreateUserDTO): Promise<User> {
+    if (
+      await this.userRepository.userExists(
+        createUserDto.cpf,
+        createUserDto.email,
+      )
+    ) {
+      throw new ConflictException('User already exists');
+    }
     return await this.userRepository.create(createUserDto);
   }
   async findAll(): Promise<User[] | []> {
@@ -35,7 +44,7 @@ export class UserService implements IUserService {
   }
   async update(
     id: string,
-    updateUserDto: UpdateUserDto,
+    updateUserDto: UpdateUserDTO,
   ): Promise<{ affected: number }> {
     if (!id) {
       throw new BadRequestException('User ID is required');

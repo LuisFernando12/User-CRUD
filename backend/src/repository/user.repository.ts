@@ -1,5 +1,5 @@
-import { CreateUserDto } from '@/dto/create-user.dto';
-import { UpdateUserDto } from '@/dto/update-user.dto';
+import { CreateUserDTO } from '@/dto/create-user.dto';
+import { UpdateUserDTO } from '@/dto/update-user.dto';
 import { User } from '@/model/user.model';
 import {
   ConflictException,
@@ -9,25 +9,20 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 export interface IUserRepository {
-  create(user: CreateUserDto): Promise<User>;
+  create(user: CreateUserDTO): Promise<User>;
   findAll(): Promise<User[] | []>;
   findOne(id: string): Promise<User | undefined>;
-  update(id: string, user: UpdateUserDto): Promise<{ affected: number }>;
+  update(id: string, user: UpdateUserDTO): Promise<{ affected: number }>;
   remove(id: string): Promise<{ affected: number }>;
+  userExists(cpf: string, email: string): Promise<boolean>;
 }
 @Injectable()
 export class UserRepository implements IUserRepository {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
-  async create(user: CreateUserDto): Promise<User> {
+  async create(user: CreateUserDTO): Promise<User> {
     try {
-      const userDB = await this.userModel.findOne({
-        $or: [{ cpf: user.cpf }, { mail: user.email }],
-      });
-      if (userDB) {
-        throw new ConflictException('User already exists');
-      }
       const createdUser = new this.userModel(user);
       return createdUser.save();
     } catch (error) {
@@ -43,7 +38,7 @@ export class UserRepository implements IUserRepository {
   async findOne(id: string): Promise<User | undefined> {
     return await this.userModel.findOne({ _id: id });
   }
-  async update(id: string, user: UpdateUserDto): Promise<{ affected: number }> {
+  async update(id: string, user: UpdateUserDTO): Promise<{ affected: number }> {
     try {
       const userUpdated = await this.userModel.updateOne({ _id: id }, user);
       if (userUpdated.acknowledged) {
@@ -64,5 +59,10 @@ export class UserRepository implements IUserRepository {
     } else {
       return { affected: 0 };
     }
+  }
+  async userExists(cpf: string, email: string): Promise<boolean> {
+    return !!(await this.userModel.exists({
+      $or: [{ cpf: cpf }, { email: email }],
+    }));
   }
 }

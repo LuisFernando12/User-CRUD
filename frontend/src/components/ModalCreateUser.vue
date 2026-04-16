@@ -87,7 +87,7 @@ const disabledButton = computed(() => {
           placeholder="Phone"
           :value="userRef.phone"
           @update:value="(value) => (userRef.phone = value)"
-          mask="(xx) xxxxx-xxxx"
+          mask="(xx)xxxxx-xxxx"
         />
         <div class="self-end flex gap-2 mt-10">
           <Button
