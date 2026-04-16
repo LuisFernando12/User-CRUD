@@ -75,7 +75,7 @@ A API ficará disponível em: `http://localhost:3000`
 | `GET`    | `/api/user`     | Lista todos os usuários |
 | `GET`    | `/api/user/:id` | Busca um usuário por ID |
 | `POST`   | `/api/user`     | Cria um novo usuário    |
-| `PATCH`  | `/api/user/:id` | Atualiza um usuário     |
+| `PUT`  | `/api/user/:id` | Atualiza um usuário     |
 | `DELETE` | `/api/user/:id` | Remove um usuário       |
 
 ### Exemplo de payload (POST /api/user)
