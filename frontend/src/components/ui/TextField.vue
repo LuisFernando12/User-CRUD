@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { HandleMask } from "./utils/mask";
 
 const { type, placeholder, value, mask } = defineProps<{
@@ -9,9 +9,10 @@ const { type, placeholder, value, mask } = defineProps<{
   mask?: string;
   maxLength?: number;
 }>();
-
+const inputRef = ref<HTMLInputElement>();
 const emit = defineEmits<{
   (e: "update:value", value: string): void;
+  (e: "load:value", value: HTMLInputElement): void;
 }>();
 const displayValue = computed(() => {
   if (!mask || value === "") return value || "";
@@ -34,6 +35,9 @@ const inputEvent = (event: Event) => {
   emit("update:value", value);
   return;
 };
+onMounted(() => {
+  emit("load:value", inputRef.value as HTMLInputElement);
+});
 </script>
 <template>
   <input
@@ -43,5 +47,6 @@ const inputEvent = (event: Event) => {
     :value="displayValue"
     @input="inputEvent"
     :maxLength="maxLength || (mask && mask.length) || ''"
+    ref="inputRef"
   />
 </template>

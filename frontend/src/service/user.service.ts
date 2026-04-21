@@ -16,7 +16,14 @@ const UpdateUserSchema = z.object({
   birthDate: z.string(),
   phone: z.string(),
 });
+const ListUserSchema = z.object({
+  limit: z.number(),
+  page: z.number(),
+  totalPages: z.number(),
+  result: UserSchema.array(),
+});
 export type UserType = z.infer<typeof UserSchema>;
+export type ListUserType = z.infer<typeof ListUserSchema>;
 export type CreateUserDTO = Omit<UserType, "_id">;
 export type UpdateUserDTO = Partial<CreateUserDTO>;
 const createUser = async (user: CreateUserDTO): Promise<UserType> => {
@@ -28,10 +35,10 @@ const createUser = async (user: CreateUserDTO): Promise<UserType> => {
     throw Error("Failed to create user");
   }
 };
-const getUsers = async (): Promise<UserType[]> => {
+const getUsers = async (): Promise<ListUserType> => {
   try {
     const { data } = await api.get("/user");
-    return UserSchema.array().parse(data);
+    return ListUserSchema.parse(data);
   } catch (error) {
     console.error("Error fetching users:", error);
     throw Error("Failed to fetch users");
@@ -40,7 +47,7 @@ const getUsers = async (): Promise<UserType[]> => {
 const getUserById = async (id: string): Promise<UserType> => {
   try {
     const { data } = await api.get(`/user/${id}`);
-    return data;
+    return UserSchema.parse(data);
   } catch (error) {
     console.error("Error fetching user:", error);
     throw Error("Failed to fetch user");
@@ -52,7 +59,7 @@ const updateUser = async (
 ): Promise<{ affected: number }> => {
   try {
     user = UpdateUserSchema.strip().parse(user);
-    const { data } = await api.put(`/user/${id}`, user);
+    const { data } = await api.patch(`/user/${id}`, user);
     return data;
   } catch (error) {
     console.error("Error updating user:", error);

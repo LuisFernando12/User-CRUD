@@ -3,4 +3,22 @@
 @theme {
   --color-light-table-secondary: #ffffff;
   --color-light-table-primary: #cfdde8;
+  --animate-loading: loading 1s linear infinite 0.8s;
+
+
+
+  @keyframes loading {
+    0% {
+      background-position: 0%;
+    }
+
+    50% {
+      background-position: 100%;
+    }
+
+    100% {
+      background-position: 0%;
+    }
+  }
+
 }

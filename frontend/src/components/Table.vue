@@ -1,69 +1,17 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { toast } from "vue3-toastify";
 import type { UserType } from "../service/user.service";
-import { useUserStore } from "../store/user.store";
-import ModalCreateUser from "./ModalCreateUser.vue";
-import ConfirmDialog from "./ui/ConfirmDialog.vue";
+import Skeleton from "./ui/Skeleton.vue";
 import TextButton from "./ui/TextButton.vue";
 import { HandleMask } from "./ui/utils/mask";
 
-const userStore = useUserStore();
 defineProps<{
   users: UserType[];
+  loading?: boolean;
 }>();
-const showModalCreateUser = ref<boolean>(false);
-const showConfirmDialog = ref<boolean>(false);
-const userRef = ref<UserType>();
-const onEdit = (user: UserType) => {
-  showModalCreateUser.value = true;
-  userRef.value = { ...user };
-};
-const onUpdate = async (user: Partial<UserType>) => {
-  const { _id: id, ...rest } = user;
-  if (id) {
-    const userUpdated = await userStore.onUpdateUser(id, rest);
-    if (!userUpdated) {
-      toast.error("Error updating user !", {
-        position: toast.POSITION.TOP_RIGHT,
-      });
-      return;
-    }
-    toast.success("User updated successfully !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-    showModalCreateUser.value = false;
-    return;
-  }
-  toast.error("User not found !", {
-    position: toast.POSITION.TOP_RIGHT,
-  });
-};
-const onDelete = (id: string) => {
-  userRef.value = { _id: id } as UserType;
-  showConfirmDialog.value = true;
-};
-const onConfirmDelete = async () => {
-  if (!userRef.value?._id) {
-    toast.error("User not found !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-    console.error("User not found, missing id !");
-    showConfirmDialog.value = false;
-    return;
-  }
-  const userDeleted = await userStore.onDeleteUser(userRef.value?._id);
-  if (!userDeleted) {
-    toast.error("Error deleting user !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-  } else {
-    toast.success("User deleted successfully !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-  }
-  showConfirmDialog.value = false;
-};
+defineEmits<{
+  (e: "on-delete", value: { id: string }): void;
+  (e: "on-edit", value: { id: string; user: UserType }): void;
+}>();
 const convertDate = (date: string) => date.split("-").reverse().join("/");
 </script>
 <template>
@@ -81,9 +29,18 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
           <th class="rounded-tr-2xl">Actions</th>
         </tr>
       </thead>
-      <tbody class="rounded-b-2xl">
-        <tr v-if="users.length === 0">
-          <td colspan="6" class="text-center py-4">No users found.</td>
+      <tbody class="rounded-b-2xl min-h-8 h-auto">
+        <tr v-if="users.length === 0 || loading" class="h-8">
+          <th
+            v-for="index in 6"
+            :key="index"
+            :class="{
+              'border-r border-gray-300 px-2': true,
+              'border-none': index === 6,
+            }"
+          >
+            <Skeleton></Skeleton>
+          </th>
         </tr>
         <tr
           v-else
@@ -109,38 +66,19 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
           <td class="text-center">
             <text-button
               text="Edit"
-              class="text-blue-500 hover:text-blue-600"
-              @click="onEdit(user)"
+              variant="primary"
+              @click="$emit('on-edit', { id: user._id, user })"
             />
             <span class="text-gray-300 font-light">|</span>
             <text-button
               text="Delete"
-              class="text-red-500 hover:text-red-600"
-              @click="onDelete(user._id)"
+              variant="danger"
+              @click="$emit('on-delete', { id: user._id })"
             />
           </td>
         </tr>
       </tbody>
     </table>
-    <ModalCreateUser
-      mode="update"
-      v-if="showModalCreateUser"
-      :show="showModalCreateUser"
-      :user="userRef"
-      @onSave="onUpdate"
-      :onCancel="
-        () => {
-          showModalCreateUser = false;
-        }
-      "
-    />
-    <ConfirmDialog
-      :show="showConfirmDialog"
-      title="Delete User"
-      description="Do you really want to delete the user?"
-      @onCancel="() => (showConfirmDialog = false)"
-      @onConfirm="onConfirmDelete"
-    />
   </div>
 </template>
 <style scoped></style>

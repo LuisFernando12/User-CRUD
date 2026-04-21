@@ -3,17 +3,20 @@ import { computed, onUnmounted, ref } from "vue";
 import { toast } from "vue3-toastify";
 import type { CreateUserDTO, UserType } from "../service/user.service";
 import Button from "./ui/Button.vue";
+import { useTextField } from "./ui/composable/useTextField";
 import TextField from "./ui/TextField.vue";
 import { ValidCPF } from "./ui/utils/valid-cpf";
 import { ValidEmail } from "./ui/utils/valid-email";
-
+const emailInputRef = ref<HTMLInputElement>();
+const cpfInputRef = ref<HTMLInputElement>();
+const textFieldComposable = useTextField();
 const emit = defineEmits<{
   (e: "onSave", user: CreateUserDTO & { _id?: string }): void;
 }>();
 const { show, onCancel, user } = defineProps<{
   show: boolean;
   onCancel: () => void;
-  user?: UserType;
+  user?: UserType | null;
   mode: "create" | "update";
 }>();
 const userRef = ref<CreateUserDTO & { _id?: string }>(
@@ -25,29 +28,20 @@ const userRef = ref<CreateUserDTO & { _id?: string }>(
     phone: "",
   },
 );
+
 const onSaveUser = (userSave: CreateUserDTO & { _id?: string }) => {
   if (!ValidEmail(userSave.email)) {
     toast.warn("Invalid email!", {
       position: toast.POSITION.TOP_RIGHT,
     });
-    const inputEmail = document.querySelector(
-      "input[name='email']",
-    ) as HTMLInputElement;
-    inputEmail.classList.remove("focus:ring-blue-500");
-    inputEmail.classList.add("focus:ring-red-500");
-    inputEmail.focus();
+    textFieldComposable.setTextFieldError(emailInputRef.value!);
     return;
   }
   if (!ValidCPF(userSave.cpf)) {
     toast.warn("Invalid CPF, Please check your CPF and try again!", {
       position: toast.POSITION.TOP_RIGHT,
     });
-    const inputCPF = document.querySelector(
-      "input[name='cpf']",
-    ) as HTMLInputElement;
-    inputCPF.classList.remove("focus:ring-blue-500");
-    inputCPF.classList.add("focus:ring-red-500");
-    inputCPF.focus();
+    textFieldComposable.setTextFieldError(cpfInputRef.value!);
     return;
   }
   emit("onSave", userSave);
@@ -96,6 +90,7 @@ const disabledButton = computed(() => {
           :value="userRef.cpf"
           @update:value="(value) => (userRef.cpf = value)"
           mask="xxx.xxx.xxx-xx"
+          @load:value="(value) => (cpfInputRef = value)"
         />
         <TextField
           type="date"
@@ -110,6 +105,7 @@ const disabledButton = computed(() => {
           placeholder="Email"
           :value="userRef.email"
           @update:value="(value) => (userRef.email = value)"
+          @load:value="(value) => (emailInputRef = value)"
         />
         <TextField
           type="text"
@@ -120,14 +116,9 @@ const disabledButton = computed(() => {
           mask="(xx) xxxxx-xxxx"
         />
         <div class="self-end flex gap-2 mt-10">
-          <Button
-            text="Cancel"
-            class="bg-gray-500 text-white px-3 py-2 rounded-lg hover:bg-gray-600 self-end mt-4 ml-2"
-            @click="onCancel()"
-          />
+          <Button text="Cancel" @click="onCancel()" variant="secondary" />
           <Button
             :text="mode === 'update' ? 'Update' : 'Create'"
-            class="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 self-end mt-4 disabled:bg-blue-300 disabled:cursor-not-allowed"
             @click="onSaveUser(userRef)"
             :disabled="disabledButton"
           />
