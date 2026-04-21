@@ -11,6 +11,7 @@ const config: Config = {
   coveragePathIgnorePatterns: [
     '<rootDir>/src/model',
     '<rootDir>/src/dto',
+    '<rootDir>/src/decorator',
     '<rootDir>/src/module',
     '<rootDir>/src/repository',
     '<rootDir>/src/main.ts',

@@ -1,3 +1,4 @@
+import { CPFValidator } from '@/decorator/validator/cpf.validator';
 import { IsDateString, IsEmail, IsString } from 'class-validator';
 export class CreateUserDTO {
   @IsString()
@@ -6,6 +7,7 @@ export class CreateUserDTO {
   @IsEmail()
   email: string;
   @IsString()
+  @CPFValidator()
   cpf: string;
   @IsDateString()
   birthDate: string;

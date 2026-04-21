@@ -8,9 +8,11 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
+  Query,
 } from '@nestjs/common';
+import { PaginatedDTO, PaginatedResponseDTO } from '../dto/paginated.dto';
 
 @Controller('user')
 export class UserController {
@@ -20,14 +22,16 @@ export class UserController {
     return await this.userService.create(createUserDto);
   }
   @Get()
-  async findAll(): Promise<User[] | []> {
-    return await this.userService.findAll();
+  async findAll(
+    @Query() paginationQuery?: PaginatedDTO,
+  ): Promise<PaginatedResponseDTO<User> | []> {
+    return await this.userService.findAll({ ...paginationQuery });
   }
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<User | undefined> {
     return await this.userService.findOne(id);
   }
-  @Put(':id')
+  @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDTO,

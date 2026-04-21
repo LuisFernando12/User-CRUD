@@ -8,9 +8,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { PaginatedDTO, PaginatedResponseDTO } from '../dto/paginated.dto';
 export interface IUserService {
   create(createUserDto: CreateUserDTO): Promise<User>;
-  findAll(): Promise<User[] | []>;
+  findAll(pagination?: PaginatedDTO): Promise<PaginatedResponseDTO<User> | []>;
   findOne(id: string): Promise<User | undefined>;
   update(
     id: string,
@@ -32,8 +33,10 @@ export class UserService implements IUserService {
     }
     return await this.userRepository.create(createUserDto);
   }
-  async findAll(): Promise<User[] | []> {
-    return await this.userRepository.findAll();
+  async findAll(
+    pagination?: PaginatedDTO,
+  ): Promise<PaginatedResponseDTO<User> | []> {
+    return await this.userRepository.findAll({ ...pagination });
   }
   async findOne(id: string): Promise<User | undefined> {
     const user = await this.userRepository.findOne(id);
