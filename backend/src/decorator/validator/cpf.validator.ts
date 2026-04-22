@@ -29,6 +29,7 @@ export function CPFValidator(
       },
       validator: {
         validate(cpf: string): boolean {
+          if (!cpf || typeof cpf !== 'string') return false;
           cpf = cpf.replace(/[^\d]+/g, '');
           if (cpf.length !== 11) return false;
           const cpfWithoutDigitVerifier = cpf.slice(0, -2);

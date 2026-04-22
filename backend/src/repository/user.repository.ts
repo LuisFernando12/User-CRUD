@@ -42,11 +42,11 @@ export class UserRepository implements IUserRepository {
     try {
       const skip = (page - 1) * limit;
       const [userDB, totalDocuments] = await Promise.all([
-        this.userModel.find().skip(skip).limit(limit),
+        this.userModel.find().skip(skip).limit(limit).sort({ createdAt: -1 }),
         this.userModel.countDocuments(),
       ]);
       const totalPages = Math.ceil(totalDocuments / limit);
-      if (page > totalPages) {
+      if (page > 1 && page > totalPages) {
         throw new BadRequestException('Page not found');
       }
       return {
