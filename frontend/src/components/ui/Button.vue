@@ -20,7 +20,13 @@ const emit = defineEmits<{
 }>();
 </script>
 <template>
-  <button :class="StyleButton[variant || 'default']" type="button">
+  <button
+    :class="
+      StyleButton[variant || 'default'] +
+      ' disabled:opacity-50 disabled:cursor-not-allowed'
+    "
+    type="button"
+  >
     {{ text }}
   </button>
 </template>

@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { defineStore } from "pinia";
+import { ref, watch } from "vue";
 import {
   userService,
   type CreateUserDTO,
@@ -8,9 +9,24 @@ import {
 
 export const useUserStore = defineStore("user", () => {
   const queryClient = useQueryClient();
+  const documentsLimit = ref<number>(10);
+  const documentsPage = ref<number>(1);
+  watch(documentsPage, () => {
+    queryClient.invalidateQueries({
+      queryKey: ["users"],
+    });
+    queryClient.refetchQueries({
+      queryKey: ["users"],
+    });
+  });
+
   const { data: usersData, isLoading: isUsersDataLoading } = useQuery({
     queryKey: ["users"],
-    queryFn: async () => await userService.getUsers(),
+    queryFn: async () =>
+      await userService.getUsers({
+        limit: documentsLimit.value,
+        page: documentsPage.value,
+      }),
   });
   const invalidUserQueries = () => {
     queryClient.invalidateQueries({
@@ -56,6 +72,8 @@ export const useUserStore = defineStore("user", () => {
   return {
     usersData,
     isUsersDataLoading,
+    documentsLimit,
+    documentsPage,
     onCreateUser,
     onUpdateUser,
     onDeleteUser,

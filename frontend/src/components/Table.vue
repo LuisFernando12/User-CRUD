@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { UserType } from "../service/user.service";
+import Pagination from "./ui/Pagination.vue";
 import Skeleton from "./ui/Skeleton.vue";
 import TextButton from "./ui/TextButton.vue";
 import { HandleMask } from "./ui/utils/mask";
@@ -7,10 +8,14 @@ import { HandleMask } from "./ui/utils/mask";
 defineProps<{
   users: UserType[];
   loading?: boolean;
+  currentPage: number;
+  totalPages: number;
 }>();
 defineEmits<{
   (e: "on-delete", value: { id: string }): void;
   (e: "on-edit", value: { id: string; user: UserType }): void;
+  (e: "on-prev"): void;
+  (e: "on-next"): void;
 }>();
 const convertDate = (date: string) => date.split("-").reverse().join("/");
 </script>
@@ -30,7 +35,7 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
         </tr>
       </thead>
       <tbody class="rounded-b-2xl min-h-8 h-auto">
-        <tr v-if="users.length === 0 || loading" class="h-8">
+        <tr v-if="(users && users.length === 0) || loading" class="h-8">
           <th
             v-for="index in 6"
             :key="index"
@@ -79,6 +84,12 @@ const convertDate = (date: string) => date.split("-").reverse().join("/");
         </tr>
       </tbody>
     </table>
+    <Pagination
+      :total-pages="totalPages"
+      :current-page="currentPage"
+      @on-next="() => $emit('on-next')"
+      @on-prev="() => $emit('on-prev')"
+    />
   </div>
 </template>
 <style scoped></style>

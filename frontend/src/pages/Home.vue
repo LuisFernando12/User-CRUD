@@ -13,6 +13,9 @@ const mode = ref<"create" | "update">("create");
 const userRef = ref<UserType>();
 const userStore = useUserStore();
 const users = computed(() => userStore.usersData);
+const currentPage = ref<number>(1);
+const totalPages = computed(() => userStore.usersData?.totalPages || 1);
+
 const onCreate = async (user: CreateUserDTO) => {
   const userCreated = await userStore.onCreateUser(user);
   if (userCreated) {
@@ -25,6 +28,7 @@ const onCreate = async (user: CreateUserDTO) => {
     });
   }
   showModalCreateUser.value = false;
+  userRef.value = undefined;
 };
 const onEdit = (user: UserType) => {
   mode.value = "update";
@@ -39,17 +43,14 @@ const onUpdate = async (user: Partial<UserType>) => {
       toast.error("Error updating user !", {
         position: toast.POSITION.TOP_RIGHT,
       });
-      return;
+    } else {
+      toast.success("User updated successfully !", {
+        position: toast.POSITION.TOP_RIGHT,
+      });
     }
-    toast.success("User updated successfully !", {
-      position: toast.POSITION.TOP_RIGHT,
-    });
-    showModalCreateUser.value = false;
-    return;
   }
-  toast.error("User not found !", {
-    position: toast.POSITION.TOP_RIGHT,
-  });
+  userRef.value = undefined;
+  showModalCreateUser.value = false;
 };
 const onDelete = (id: string) => {
   userRef.value = { _id: id } as UserType;
@@ -76,6 +77,18 @@ const onConfirmDelete = async () => {
   }
   showConfirmDialog.value = false;
 };
+const onNext = async () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+    userStore.documentsPage = currentPage.value;
+  }
+};
+const onPrev = async () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+    userStore.documentsPage = currentPage.value;
+  }
+};
 </script>
 <template>
   <div class="flex flex-col items-center h-screen w-screen gap-6">
@@ -85,7 +98,7 @@ const onConfirmDelete = async () => {
       User CRUD application.
     </p>
     <div
-      class="w-2/3 h-2/4 bg-white rounded-2xl flex flex-col items-center py-3"
+      class="w-2/3 h-2/3 bg-white rounded-2xl flex flex-col items-center py-3 overflow-hidden"
     >
       <div class="flex flex-col w-full py-3">
         <Button
@@ -99,6 +112,10 @@ const onConfirmDelete = async () => {
         @on-delete="($event) => onDelete($event.id)"
         @on-edit="($event) => onEdit($event.user)"
         :loading="userStore.isUsersDataLoading"
+        @on-next="onNext"
+        @on-prev="onPrev"
+        :current-page="currentPage"
+        :total-pages="totalPages"
       />
     </div>
     <ModalCreateUser
